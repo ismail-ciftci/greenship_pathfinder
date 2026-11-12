@@ -15,6 +15,23 @@
 - **Vehicle Control Interface:** Manages vehicle state transitions (`MANUAL`, `GUIDED`, `AUTO`), arming/disarming sequences, and global waypoint transmission via MAVROS service and topic interfaces.
 - **Sensor Integration & Fusion:** Ingests detections from YOLO-based vision models and LiDAR range sensors to localize dynamic and static marine obstacles.
 
+### Example: planning through a buoy channel
+
+The planner is plain Python and NumPy, so it runs without ROS. [examples/astar_demo.py](examples/astar_demo.py)
+places five red/green buoy pairs, a static obstacle inside the channel and a moving obstacle on a NED grid. It
+uses the vehicle's own weights (`OBJECT_WEIGHT_VALUE = 25`, `OBJECT_AREA_RADIUS = 4`) and calls
+`NavDomain.a_star_search` with the channel midpoints as the corridor, as `Commander._find_corridor` does:
+
+```bash
+python examples/astar_demo.py   # needs numpy + matplotlib; writes docs/astar_demo.png
+```
+
+![A* path through a buoy channel](docs/astar_demo.png)
+
+The path enters the channel between the first buoy pair and follows the midpoint corridor. It bends around the
+obstacle inside the channel (the repulsive field around it) and stays clear of the moving obstacle. The
+moving obstacle's penalty is applied inside the search, so it does not appear in the heatmap.
+
 ---
 
 ## 2. System Architecture
